@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
   <style>
     :root {
       --toss-blue: #3182F6;
@@ -488,6 +489,14 @@
   </main>
 
   <script>
+    // Supabase 설정 (배포 시 아래 두 값을 채우거나, Vercel 환경 변수 사용)
+    const SUPABASE_URL = '';
+    const SUPABASE_ANON_KEY = '';
+
+    const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY)
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
+
     const MIN = 1;
     const MAX = 45;
     const COUNT = 6;
@@ -528,6 +537,18 @@
       ball.className = `ball reveal ${getBallColorClass(num)}${isBonus ? ' bonus' : ''}`;
       ball.textContent = num;
       return ball;
+    }
+
+    async function saveToSupabase(numbers, bonus) {
+      if (!supabase) return;
+      try {
+        const { error } = await supabase
+          .from('lotto_draws')
+          .insert({ numbers, bonus });
+        if (error) console.error('Supabase 저장 실패:', error);
+      } catch (e) {
+        console.error('Supabase 오류:', e);
+      }
     }
 
     function addToHistory(numbers, bonus) {
@@ -608,6 +629,7 @@
         ballsBonusEl.appendChild(bonusBall);
         setStatus('추첨 완료!', 'done');
         addToHistory(numbers, bonus);
+        saveToSupabase(numbers, bonus);
       }, t);
       t += 800;
 
