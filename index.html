@@ -494,14 +494,16 @@
     const SUPABASE_ANON_KEY = '__SUPABASE_ANON_KEY__';
 
     let supabase = null;
+    const _sbReady = SUPABASE_URL.startsWith('https://') && !SUPABASE_ANON_KEY.startsWith('__');
     try {
-      if (SUPABASE_URL && SUPABASE_ANON_KEY
-          && SUPABASE_URL.startsWith('https://')
-          && !SUPABASE_ANON_KEY.startsWith('__')) {
+      if (_sbReady) {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('[Supabase] 초기화 완료:', SUPABASE_URL);
+      } else {
+        console.warn('[Supabase] 환경변수 미설정 - 저장 기능 비활성화');
       }
     } catch (e) {
-      console.warn('Supabase 초기화 건너뜀:', e.message);
+      console.error('[Supabase] 초기화 실패:', e.message);
     }
 
     const MIN = 1;
@@ -547,14 +549,25 @@
     }
 
     async function saveToSupabase(numbers, bonus) {
-      if (!supabase) return;
+      if (!supabase) {
+        console.warn('[Supabase] 클라이언트 없음 - 저장 건너뜀');
+        return;
+      }
       try {
-        const { error } = await supabase
+        console.log('[Supabase] 저장 시도:', { numbers, bonus });
+        const { data, error } = await supabase
           .from('lotto_draws')
-          .insert({ numbers, bonus });
-        if (error) console.error('Supabase 저장 실패:', error);
+          .insert({ numbers, bonus })
+          .select();
+        if (error) {
+          console.error('[Supabase] 저장 실패 (error.code):', error.code);
+          console.error('[Supabase] 저장 실패 (error.message):', error.message);
+          console.error('[Supabase] 저장 실패 (error.hint):', error.hint);
+        } else {
+          console.log('[Supabase] 저장 성공:', data);
+        }
       } catch (e) {
-        console.error('Supabase 오류:', e);
+        console.error('[Supabase] 예외 발생:', e.message);
       }
     }
 
