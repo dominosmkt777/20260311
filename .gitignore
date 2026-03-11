@@ -22,3 +22,6 @@ supabase-config.txt
 
 # Build output
 dist/
+
+# Dependencies
+node_modules/
