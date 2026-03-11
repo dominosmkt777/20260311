@@ -45,37 +45,25 @@ create policy "Allow anonymous select"
 
 ---
 
-## 3. Supabase와 Vercel 연동 (설정만 하면 됨)
+## 3. Supabase와 Vercel 연동 (환경 변수 사용)
 
-로또 추첨 시 `lotto_draws` 테이블에 저장되려면 **Supabase Project URL**과 **anon key**가 프론트에 들어가야 합니다.
+로또 추첨 시 `lotto_draws` 테이블에 저장되려면 **Supabase Project URL**과 **anon key**가 빌드 시 HTML에 주입되어야 합니다.
 
-### 방법 A: index.html에 직접 넣기 (가장 간단)
-
-1. Supabase 대시보드 → **Project Settings** → **API**
-2. **Project URL** / **anon public** 키 복사
-3. 로컬에서 `index.html` 열기
-4. `<script>` 안에서 아래 두 줄을 실제 값으로 수정:
-
-```javascript
-const SUPABASE_URL = 'https://xxxxxxxx.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
-```
-
-5. 저장 후 커밋 & push → Vercel이 자동 배포
-
-- anon key는 공개용이라 프론트에 두어도 되고, RLS로 DB는 보호됩니다.
-
-### 방법 B: Vercel 환경 변수로 넣기 (선택)
-
-환경 변수로 관리하려면 **빌드 시** 값을 주입해야 해서, 간단한 빌드 스크립트가 필요합니다.
+### Vercel 환경 변수 설정 (권장)
 
 1. Vercel 대시보드 → 해당 프로젝트 → **Settings** → **Environment Variables**
-2. 추가:
-   - `SUPABASE_URL` = `https://xxxxxxxx.supabase.co`
-   - `SUPABASE_ANON_KEY` = anon 키 전체
-3. 프로젝트에 **빌드 단계**를 두고, 빌드 시 이 값으로 `index.html` 안의 `SUPABASE_URL`, `SUPABASE_ANON_KEY`를 치환하는 방식으로 사용
+2. 아래 두 개 추가 (Production, Preview, Development 모두 체크 권장):
 
-일반적으로는 **방법 A**만 해도 충분합니다.
+| Name | Value |
+|------|--------|
+| `SUPABASE_URL` | `https://xxxxxxxx.supabase.co` |
+| `SUPABASE_ANON_KEY` | anon public 키 전체 |
+
+3. **Save** 후 **Deployments** → 최신 배포 옆 **⋯** → **Redeploy** 한 번 실행.
+
+- 빌드 시 `build.js`가 이 값들을 `index.html`에 넣고 `dist/`를 만듭니다. 환경 변수 수정 후에는 **재배포**가 필요합니다.
+
+로컬에서만 쓸 때는 `index.html`의 `__SUPABASE_URL__`, `__SUPABASE_ANON_KEY__`를 실제 값으로 바꿔도 됩니다. (배포는 Vercel 환경 변수 사용 권장)
 
 ---
 

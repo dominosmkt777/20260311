@@ -1,0 +1,7 @@
+{
+  "name": "lotto-draw",
+  "private": true,
+  "scripts": {
+    "build": "node build.js"
+  }
+}

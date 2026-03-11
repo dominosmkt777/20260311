@@ -17,3 +17,8 @@ npm-debug.log*
 # Local env
 .env
 .env.local
+.supabase-token
+supabase-config.txt
+
+# Build output
+dist/

@@ -489,9 +489,9 @@
   </main>
 
   <script>
-    // Supabase 설정 (배포 시 아래 두 값을 채우거나, Vercel 환경 변수 사용)
-    const SUPABASE_URL = '';
-    const SUPABASE_ANON_KEY = '';
+    // Supabase 설정 (Vercel 환경변수 SUPABASE_URL, SUPABASE_ANON_KEY 가 빌드 시 주입됨)
+    const SUPABASE_URL = '__SUPABASE_URL__';
+    const SUPABASE_ANON_KEY = '__SUPABASE_ANON_KEY__';
 
     const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY)
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
